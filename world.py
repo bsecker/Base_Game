@@ -42,6 +42,9 @@ class World:
 
         self.levelmanager.update()
 
+        for _i in self.levelmanager.level_objs:
+            _i.update()
+
         elapsed_milliseconds = self.clock.get_time()
         #Print the fps that the game is running at.
         if self.print_frames:
@@ -56,13 +59,19 @@ class World:
             if event.type == pygame.QUIT:
                 self.game_running = False
 
-            #if event.type == pygame.MOUSEBUTTONDOWN:
-                #self.levelmanager.mouse_click()
-
             if event.type == pygame.KEYDOWN:
                 # Quit Game
                 if event.key == pygame.K_ESCAPE:
                     self.game_running = False
+
+                if event.key == pygame.K_1:
+                    self.levelmanager.block_state = 'block_wood'
+
+                if event.key == pygame.K_2:
+                    self.levelmanager.block_state = 'block_rewood'
+
+                if event.key == pygame.K_3:
+                    self.levelmanager.block_state = 'block_catapult'
 
     def draw(self, surface):
         surface.fill(constants.BG_COLOUR)

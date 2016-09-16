@@ -6,12 +6,17 @@ class LevelManager:
 	"""handles all the game logic and everything basically lol"""
 	def __init__(self):
 		self.level_objs = self.generate_world()
+		self.block_state = 'block_wood'
 
 	def generate_world(self):
 		sea = entities.Sea()
 		return [sea]
 
 	def update(self):
+		# get block state
+		state = getattr(self, self.block_state)
+		state()
+
 		self.get_mouse()
 
 	def get_mouse(self):
@@ -24,7 +29,7 @@ class LevelManager:
 
 		if _buttons[0]:
 			# generate new block
-			self.create_block(entities.Wood, _pos)
+			self.create_block(self.current_block, _pos)
 		elif _buttons[2]:
 			self.delete_block(_pos)
 
@@ -35,20 +40,23 @@ class LevelManager:
 		for _i in self.level_objs:
 			if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
 				return
-			# if in water, don't do anything
 
-
-		_block = block(pos[0], pos[1]) 
+		_block = block(pos[0], pos[1], self.level_objs) 
 		self.level_objs.append(_block)
 		print self.level_objs
 
 	def delete_block(self, pos):
-		"""delete block at position"""
+		"""delete block at position. doesn't delete water"""
 		for _i in self.level_objs:
 			if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
-				self.level_objs.remove(_i)
+				if _i.entity_id != 'sea':
+					self.level_objs.remove(_i)
 
+	def block_wood(self):
+		self.current_block = entities.Wood
 
-### TO DO FOR TOMORROW:
-### FIX ACCIDENTALLY DELETING WATER
-### FIX BUILDING INSIDE WATER
+	def block_rewood(self):
+		self.current_block = entities.ReinforcedWood
+
+	def block_catapult(self):
+		self.current_block = entities.Catapult
