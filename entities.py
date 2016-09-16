@@ -72,5 +72,4 @@ class Catapult(BaseEntity):
     def __init__(self, x, y, block_list):
         BaseEntity.__init__(self, x, y, spritefile = 'spr_catapult')
         self.entity_id = 'catapult'
-        
     

@@ -21,6 +21,8 @@ class World:
         self.fps_timer = 0.0
         self.print_fps_frequency = 1000
 
+        self.text_font = pygame.font.SysFont("monospace", 20)
+
     def go(self):
         """main loop"""
         while self.game_running:
@@ -78,6 +80,8 @@ class World:
 
         for _i in self.levelmanager.level_objs:
             _i.draw(surface)
+
+        self.levelmanager.draw(surface, self.text_font)
 
     def state_build(self):
         pass
