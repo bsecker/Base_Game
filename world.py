@@ -59,7 +59,7 @@ class World:
                         self.levelmanager.level_objs.remove(_object)
 
                     # collision with wood
-                    if collision.entity_id == 'wood' or collision.entity_id == 'rewood':
+                    if collision.entity_id == 'wood' or collision.entity_id == 'rewood' or collision.entity_id == 'catapult' or collision.entity_id == 'cannon':
                         collision.health +=- 1
                         self.levelmanager.level_objs.remove(_object)
 
@@ -96,11 +96,11 @@ class World:
                     self.levelmanager.block_state = 'block_catapult'
 
                 if event.key == pygame.K_4:
-                    self.levelmanager.bloc3k_state = 'block_cannon'
+                    self.levelmanager.block_state = 'block_cannon'
 
     def draw(self, surface):
         surface.blit(self.levelmanager.background, (0,0))
-        
+
         self.rects = self.levelmanager.level_objs.draw(surface)
         self.levelmanager.draw_text(surface, self.text_font)
 

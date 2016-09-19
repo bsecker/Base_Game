@@ -73,21 +73,21 @@ class Sea(BaseEntity):
         self.health = 1
 
 class ProjectileLauncher(BaseEntity):
-    def __init__(self, x, y, spritefile):
+    def __init__(self, x, y, blocklist, spritefile):
         BaseEntity.__init__(self, x, y, spritefile = spritefile)
-
-class Catapult(BaseEntity):
-    def __init__(self, x, y, block_list, spritefile = 'spr_catapult'):
-        BaseEntity.__init__(self, x, y, spritefile)
-        self.entity_id = 'catapult'
-        self.solid = False
-        self.block_list = block_list
-        self.alive = True
-        self.cost = 20
+        self.entity_id = None
+        self.solid = True
+        self.block_list = blocklist
+        self.cost = 0
+        self.health = 3
 
         self.can_fire = False
         self.reload_max = 50
         self.reload_time = 0
+
+        self.fire_angle = -45
+        self.fire_angle_varation = 15
+        self.fire_speed = 10
 
     def update(self):
         if self.reload_time >= self.reload_max:
@@ -98,39 +98,31 @@ class Catapult(BaseEntity):
             self.reload_time += 1
 
     def fire(self):
-        proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -45+randint(-15,15))
+        proj = Projectile(self.rect.x, self.rect.y-10, self.block_list, self.fire_speed, self.fire_angle+randint(-self.fire_angle_varation,self.fire_angle_varation))
         self.block_list.add(proj)
+
+class Catapult(ProjectileLauncher):
+    def __init__(self, x, y, block_list, spritefile = 'spr_catapult'):
+        ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
+        self.entity_id = 'catapult'
+        self.cost = 20
 
 class CatapultEnemy(Catapult):
-    def __init__(self, x, y, block_list):
-        Catapult.__init__(self, x, y, block_list, spritefile = 'spr_catapult_left')
+    def __init__(self, x, y, block_list, spritefile = 'spr_catapult_left'):
+        ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
+        self.entity_id = 'catapult'
+        self.fire_angle = -135
+        self.fire_angle_varation = 15
+        self.fire_speed = 10
 
-    def fire(self):
-        proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -135+randint(-15,15))
-        self.block_list.add(proj)
-
-class Cannon(BaseEntity):
-    def __init__(self, x, y, block_list):
-        BaseEntity.__init__(self, x, y, spritefile = 'spr_cannon')
+class Cannon(Catapult):
+    def __init__(self, x, y, block_list, spritefile = 'spr_cannon'):
+        ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
         self.entity_id = 'cannon'
-        self.solid = False
-        self.block_list = block_list
-        self.alive = True
-        self.cost = 25
-
-        self.can_fire = False
-        self.reload_max = 40
-        self.reload_time = 0
-
-    def update(self):
-        if self.reload_time >= self.reload_max:
-            #fire
-            self.reload_time = 0
-            # JUST MAKE SURE self.blocklist DOESNT CHANGE OR SOMETHING??!
-            proj = Projectile(self.rect.x, self.rect.y, self.block_list, 14, -10+randint(-5,5))
-            self.block_list.add(proj)
-        else:
-            self.reload_time += 1
+        self.fire_angle = -10
+        self.fire_angle_varation = 5
+        self.fire_speed = 12
+        self.cost = 30
 
 class Projectile(BaseEntity):
     def __init__(self, x, y, block_list, speed, direction):
@@ -142,7 +134,7 @@ class Projectile(BaseEntity):
         self.gravity_accel = .1
         self.alive = True
         self.entity_id = 'projectile'
-
+        self.solid = False
 
         # convert angle to radians, then calculate x & y speeds
         self.angle = self.direction * math.pi/180
