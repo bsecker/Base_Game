@@ -34,7 +34,6 @@ class World:
             # Draw
             self.draw(self.screen)
             self.clock.tick(constants.FPS)
-            pygame.display.update()
 
         pygame.quit()
 
@@ -44,13 +43,13 @@ class World:
 
         self.levelmanager.update()
 
-        for _i in self.levelmanager.level_objs:
+        for _i in self.levelmanager.level_objs.sprites():
             _i.update()
 
             if _i.entity_id == 'projectile':
                 if _i.alive == False:
                     self.levelmanager.level_objs.remove(_i)
-                    
+
 
         elapsed_milliseconds = self.clock.get_time()
         #Print the fps that the game is running at.
@@ -81,12 +80,12 @@ class World:
                     self.levelmanager.block_state = 'block_catapult'
 
     def draw(self, surface):
-        surface.fill(constants.BG_COLOUR)
+        surface.blit(self.levelmanager.background, (0,0))
 
-        for _i in self.levelmanager.level_objs:
-            _i.draw(surface)
+        self.rects = self.levelmanager.level_objs.draw(surface)
+        self.levelmanager.draw_text(surface, self.text_font)
 
-        self.levelmanager.draw(surface, self.text_font)
+        pygame.display.update()
 
     def state_build(self):
         pass

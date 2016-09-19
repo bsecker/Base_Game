@@ -10,18 +10,19 @@ class LevelManager:
 		self.money = 100
 		self.buildcost = 0
 
+		self.background = self.set_background(constants.LIGHTBLUE)
+
 	def generate_world(self):
-		objs = []
 
 		# add sea
 		sea = entities.Sea()
-		objs.append(sea)
+		objs.add(sea)
 
 		# add starting block
 		_height = constants.SCREEN_HEIGHT - constants.SEA_HEIGHT - constants.BLOCK_SIZE
 		start_block = entities.Wood(constants.BLOCK_SIZE*5, _height, objs) 
 		start_block.cost = 0
-		objs.append(start_block)
+		objs.add(start_block)
 
 		return objs
 
@@ -65,7 +66,14 @@ class LevelManager:
 				if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
 					return
 
-				if block != (entities.Catapult or entities.Cannon):
+				if block == (entities.Catapult or entities.Cannon):
+					# can only build blocks above existing
+					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
+						# can't build blocks on catapults or cannons
+						if _i.entity_id != ('catapult' or 'cannon'):
+							can_build = 1 #down
+				
+				else:
 					# can only build blocks on top, left or right of existing blocks
 					if _i.rect.collidepoint(pos[0]+constants.BLOCK_SIZE+1, pos[1]+1):
 						can_build = 1 #left
@@ -73,15 +81,11 @@ class LevelManager:
 					 	can_build = 1 #right
 					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
 						can_build = 1 #down
-				else:
-					# can only build blocks on top of existing blocks
-					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
-						can_build = 1 #down
 
 		if can_build == 1:
 			_block = block(pos[0], pos[1], self.level_objs) 
 			_block.cost = cost
-			self.level_objs.append(_block)
+			self.level_objs.add(_block)
 			self.money +=- cost
 			return
 				
@@ -89,7 +93,7 @@ class LevelManager:
 		"""delete block at position. doesn't delete water"""
 		for _i in self.level_objs:
 			if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
-				if _i.entity_id != 'sea':
+				if _i.entity_id != ('sea' and 'projectile'):
 					self.level_objs.remove(_i)
 					self.money += _i.cost
 
@@ -105,6 +109,15 @@ class LevelManager:
 		self.current_block = entities.Catapult
 		self.buildcost = 20
 
-	def draw(self, surface, font):
-		label = font.render("Money: {0}".format(str(self.money)), 1, constants.TEXT_COLOUR)
-		surface.blit(label, (10,10))
+	def draw_text(self, surface, font):
+		label = font.render("Money: {0}".format(str(self.money)), 0, constants.TEXT_COLOUR, constants.BG_COLOUR)
+		text_rect = label.get_rect()
+		text_rect.topleft = (10,10)
+
+		surface.blit(label, text_rect)
+
+	def set_background(self, colour):
+		bg = pygame.Surface((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+		bg = bg.convert()
+		bg.fill(colour)
+		return bg
