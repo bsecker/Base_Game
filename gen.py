@@ -1,16 +1,20 @@
 import entities
 import pygame
 import constants
+import random
 
 class LevelManager:
 	"""handles all the game logic and everything basically lol"""
 	def __init__(self):
 		self.level_objs = self.generate_world()
 		self.block_state = 'block_wood'
-		self.money = 100
+		self.money = 50
 		self.buildcost = 0
 
 		self.background = self.set_background(constants.LIGHTBLUE)
+
+		#generate enemy ship
+		self.generate_enemy_ship(constants.SCREEN_WIDTH/4*3, constants.SCREEN_HEIGHT - constants.SEA_HEIGHT - constants.BLOCK_SIZE, 2, 2, 10)
 
 	def generate_world(self):
 		objs = pygame.sprite.Group()
@@ -126,3 +130,19 @@ class LevelManager:
 		bg = bg.convert()
 		bg.fill(colour)
 		return bg
+
+	def generate_enemy_ship(self, x, y, catapults, cannons, length):
+		"""generate an enemy ship"""
+
+		#generate base
+		for i in range(length):
+			block = entities.Wood(x+(i*constants.BLOCK_SIZE), y, self.level_objs)
+			self.level_objs.add(block)
+
+		#add second layer
+		for i in range(length):
+			block = entities.Wood(x+(i*constants.BLOCK_SIZE), y-constants.BLOCK_SIZE, self.level_objs)
+			if random.randint(0,2) == 1:
+				self.level_objs.add(block)
+				
+		# add cannons and catapults (DO THIS TOMORROW)
