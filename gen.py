@@ -9,7 +9,6 @@ class LevelManager:
 		self.level_objs = self.generate_world()
 		self.block_state = 'block_wood'
 		self.money = 50
-		self.buildcost = 0
 
 		self.background = self.set_background(constants.LIGHTBLUE)
 
@@ -48,15 +47,13 @@ class LevelManager:
 
 		# Left click
 		if _buttons[0]:
-			# generate new block
-			if self.money >= self.buildcost:
-				self.create_block(self.current_block, _pos, self.buildcost)
+			self.create_block(self.current_block, _pos)
 
 		# Right click
 		elif _buttons[2]:
 			self.delete_block(_pos)
 
-	def create_block(self, block, pos, cost):
+	def create_block(self, block, pos):
 		"""create block at pos"""
 		can_build = 0
 
@@ -89,10 +86,11 @@ class LevelManager:
 
 		if can_build == 1:
 			_block = block(pos[0], pos[1], self.level_objs) 
-			_block.cost = cost
-			self.level_objs.add(_block)
-			self.money +=- cost
-			return
+
+			if self.money >= _block.cost:
+				self.level_objs.add(_block)
+				self.money +=- _block.cost
+				return
 				
 	def delete_block(self, pos):
 		"""delete block at position. doesn't delete water"""
@@ -104,19 +102,15 @@ class LevelManager:
 
 	def block_wood(self):
 		self.current_block = entities.Wood
-		self.buildcost = 1
 
 	def block_rewood(self):
 		self.current_block = entities.ReinforcedWood
-		self.buildcost = 5
 
 	def block_catapult(self):
 		self.current_block = entities.Catapult
-		self.buildcost = 20
 
 	def block_cannon(self):
 		self.current_block = entities.Cannon
-		self.buildcost = 25
 
 	def draw_text(self, surface, font):
 		label = font.render("Money: {0}".format(str(self.money)), 0, constants.TEXT_COLOUR, constants.BG_COLOUR)
@@ -136,13 +130,15 @@ class LevelManager:
 
 		#generate base
 		for i in range(length):
-			block = entities.Wood(x+(i*constants.BLOCK_SIZE), y, self.level_objs)
+			block = entities.ReinforcedWood(x+(i*constants.BLOCK_SIZE), y, self.level_objs)
 			self.level_objs.add(block)
 
 		#add second layer
 		for i in range(length):
 			block = entities.Wood(x+(i*constants.BLOCK_SIZE), y-constants.BLOCK_SIZE, self.level_objs)
-			if random.randint(0,2) == 1:
+			if random.randint(0,1) == 1:
 				self.level_objs.add(block)
-				
-		# add cannons and catapults (DO THIS TOMORROW)
+
+				if random.randint(0,1) == 1:
+					block = entities.CatapultEnemy(x+(i*constants.BLOCK_SIZE), y-constants.BLOCK_SIZE*2, self.level_objs)
+					self.level_objs.add(block)

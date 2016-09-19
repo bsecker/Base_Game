@@ -32,6 +32,9 @@ class Block(BaseEntity):
         self.block_list = block_list
         self.y_vel = 0
         self.solid = True
+        self.health = 1
+        self.alive = True
+        self.cost = 1
 
     def update(self):
         self.update_gravity()
@@ -45,16 +48,20 @@ class Wood(Block):
     def __init__(self, x, y, block_list):
         Block.__init__(self, constants.BROWN, x, y, block_list)
         self.entity_id = "wood"
+        self.cost = 1
 
 class ReinforcedWood(Block):
     def __init__(self, x, y, block_list):
         Block.__init__(self, constants.DARKBROWN, x, y, block_list)
         self.entity_id = "rewood"
+        self.health = 3
+        self.cost = 5
 
 class Sail(Block):
     def __init__(self, x, y, block_list):
         Block.__init__(self, constants.WHITE, x, y, block_list)
         self.entity_id = "sail"
+        self.cost = 1
 
 class Sea(BaseEntity):
     """ the sea """
@@ -62,13 +69,21 @@ class Sea(BaseEntity):
         BaseEntity.__init__(self, 0, constants.SCREEN_HEIGHT - constants.SEA_HEIGHT, constants.SCREEN_WIDTH, constants.SEA_HEIGHT, constants.BLUE)
         self.entity_id = "sea"
         self.solid = False
+        self.alive = True
+        self.health = 1
+
+class ProjectileLauncher(BaseEntity):
+    def __init__(self, x, y, spritefile):
+        BaseEntity.__init__(self, x, y, spritefile = spritefile)
 
 class Catapult(BaseEntity):
-    def __init__(self, x, y, block_list):
-        BaseEntity.__init__(self, x, y, spritefile = 'spr_catapult')
+    def __init__(self, x, y, block_list, spritefile = 'spr_catapult'):
+        BaseEntity.__init__(self, x, y, spritefile)
         self.entity_id = 'catapult'
         self.solid = False
         self.block_list = block_list
+        self.alive = True
+        self.cost = 20
 
         self.can_fire = False
         self.reload_max = 50
@@ -78,11 +93,21 @@ class Catapult(BaseEntity):
         if self.reload_time >= self.reload_max:
             #fire
             self.reload_time = 0
-            # JUST MAKE SURE self.blocklist DOESNT CHANGE OR SOMETHING??!
-            proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -45+randint(-15,15))
-            self.block_list.add(proj)
+            self.fire()
         else:
             self.reload_time += 1
+
+    def fire(self):
+        proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -45+randint(-15,15))
+        self.block_list.add(proj)
+
+class CatapultEnemy(Catapult):
+    def __init__(self, x, y, block_list):
+        Catapult.__init__(self, x, y, block_list, spritefile = 'spr_catapult_left')
+
+    def fire(self):
+        proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -135+randint(-15,15))
+        self.block_list.add(proj)
 
 class Cannon(BaseEntity):
     def __init__(self, x, y, block_list):
@@ -90,6 +115,8 @@ class Cannon(BaseEntity):
         self.entity_id = 'cannon'
         self.solid = False
         self.block_list = block_list
+        self.alive = True
+        self.cost = 25
 
         self.can_fire = False
         self.reload_max = 40

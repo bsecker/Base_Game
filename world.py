@@ -43,20 +43,29 @@ class World:
 
         self.levelmanager.update()
 
-        for _i in self.levelmanager.level_objs.sprites():
-            _i.update()
+        for _object in self.levelmanager.level_objs.sprites():
+            _object.update()
 
-            if _i.entity_id == 'projectile':
-                if _i.alive == False:
-                    self.levelmanager.level_objs.remove(_i)
+            if _object.alive == False:
+                self.levelmanager.level_objs.remove(_object)
 
-                cols = pygame.sprite.spritecollide(_i, self.levelmanager.level_objs, 0)
+            if _object.entity_id == 'projectile':
+                # do p3rojectile collisions
+                cols = pygame.sprite.spritecollide(_object, self.levelmanager.level_objs, 0)
+                for collision in cols:
 
-                if len(cols)>1:
-                    if cols[1].entity_id == 'sea':
-                        _i.alive == False
+                    # collision with sea
+                    if collision.entity_id == 'sea':
+                        self.levelmanager.level_objs.remove(_object)
 
+                    # collision with wood
+                    if collision.entity_id == 'wood' or collision.entity_id == 'rewood':
+                        collision.health +=- 1
+                        self.levelmanager.level_objs.remove(_object)
 
+                        if collision.health <= 0:
+                            collision.alive = False
+                            self.levelmanager.money += collision.cost
 
         elapsed_milliseconds = self.clock.get_time()
         #Print the fps that the game is running at.
@@ -87,11 +96,11 @@ class World:
                     self.levelmanager.block_state = 'block_catapult'
 
                 if event.key == pygame.K_4:
-                    self.levelmanager.block_state = 'block_cannon'
+                    self.levelmanager.bloc3k_state = 'block_cannon'
 
     def draw(self, surface):
         surface.blit(self.levelmanager.background, (0,0))
-
+        
         self.rects = self.levelmanager.level_objs.draw(surface)
         self.levelmanager.draw_text(surface, self.text_font)
 
