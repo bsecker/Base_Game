@@ -40,27 +40,43 @@ class LevelManager:
 		_pos[1] = _pos[1] // constants.BLOCK_SIZE * constants.BLOCK_SIZE
 		_buttons = pygame.mouse.get_pressed()
 
+		# Left click
 		if _buttons[0]:
 			# generate new block
 			if self.money >= self.buildcost:
 				self.create_block(self.current_block, _pos, self.buildcost)
+
+		# Right click
 		elif _buttons[2]:
 			self.delete_block(_pos)
 
 	def create_block(self, block, pos, cost):
 		"""create block at pos"""
 		can_build = 0
-		for _i in self.level_objs:
-			# if pos is taken, do nothing
-			if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
-				return
 
-			if _i.rect.collidepoint(pos[0]+constants.BLOCK_SIZE+1, pos[1]+1):
-				can_build = 1
-			if _i.rect.collidepoint(pos[0]-1, pos[1]+1):
-				can_build = 1
-			if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
-				can_build = 1
+		# check if within boundaries
+		if pos[0] >= constants.BUILD_CONSTRAINT:
+			return
+
+		# loop through all blocks and check if it can be placed there.
+		for _i in self.level_objs:
+			if _i.entity_id != 'sea':
+				# if pos is taken, do nothing and cancel everything
+				if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
+					return
+
+				if block != (entities.Catapult or entities.Cannon):
+					# can only build blocks on top, left or right of existing blocks
+					if _i.rect.collidepoint(pos[0]+constants.BLOCK_SIZE+1, pos[1]+1):
+						can_build = 1 #left
+					if _i.rect.collidepoint(pos[0]-1, pos[1]+1):
+					 	can_build = 1 #right
+					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
+						can_build = 1 #down
+				else:
+					# can only build blocks on top of existing blocks
+					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
+						can_build = 1 #down
 
 		if can_build == 1:
 			_block = block(pos[0], pos[1], self.level_objs) 

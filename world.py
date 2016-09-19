@@ -47,6 +47,11 @@ class World:
         for _i in self.levelmanager.level_objs:
             _i.update()
 
+            if _i.entity_id == 'projectile':
+                if _i.alive == False:
+                    self.levelmanager.level_objs.remove(_i)
+                    
+
         elapsed_milliseconds = self.clock.get_time()
         #Print the fps that the game is running at.
         if self.print_frames:
@@ -95,3 +100,4 @@ class World:
 if __name__ == '__main__':
     game = World()
     game.go()
+
