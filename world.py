@@ -50,6 +50,13 @@ class World:
                 if _i.alive == False:
                     self.levelmanager.level_objs.remove(_i)
 
+                cols = pygame.sprite.spritecollide(_i, self.levelmanager.level_objs, 0)
+
+                if len(cols)>1:
+                    if cols[1].entity_id == 'sea':
+                        _i.alive == False
+
+
 
         elapsed_milliseconds = self.clock.get_time()
         #Print the fps that the game is running at.
@@ -78,6 +85,9 @@ class World:
 
                 if event.key == pygame.K_3:
                     self.levelmanager.block_state = 'block_catapult'
+
+                if event.key == pygame.K_4:
+                    self.levelmanager.block_state = 'block_cannon'
 
     def draw(self, surface):
         surface.blit(self.levelmanager.background, (0,0))

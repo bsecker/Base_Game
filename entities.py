@@ -1,6 +1,7 @@
 import pygame
 import constants
 import math
+from random import randint
 """
 
 TO DO:
@@ -24,9 +25,6 @@ class BaseEntity(pygame.sprite.Sprite):
         
     def update(self):
         pass
-
-    def draw(self, surface):
-        surface.blit(self.image, self.rect)
 
 class Block(BaseEntity):
     def __init__(self, colour, x, y, block_list):
@@ -81,14 +79,31 @@ class Catapult(BaseEntity):
             #fire
             self.reload_time = 0
             # JUST MAKE SURE self.blocklist DOESNT CHANGE OR SOMETHING??!
-            proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -45)
-            self.block_list.append(proj)
+            proj = Projectile(self.rect.x, self.rect.y, self.block_list, 10, -45+randint(-15,15))
+            self.block_list.add(proj)
         else:
             self.reload_time += 1
 
 class Cannon(BaseEntity):
-    def __init__(self):
-        pass
+    def __init__(self, x, y, block_list):
+        BaseEntity.__init__(self, x, y, spritefile = 'spr_cannon')
+        self.entity_id = 'cannon'
+        self.solid = False
+        self.block_list = block_list
+
+        self.can_fire = False
+        self.reload_max = 40
+        self.reload_time = 0
+
+    def update(self):
+        if self.reload_time >= self.reload_max:
+            #fire
+            self.reload_time = 0
+            # JUST MAKE SURE self.blocklist DOESNT CHANGE OR SOMETHING??!
+            proj = Projectile(self.rect.x, self.rect.y, self.block_list, 14, -10+randint(-5,5))
+            self.block_list.add(proj)
+        else:
+            self.reload_time += 1
 
 class Projectile(BaseEntity):
     def __init__(self, x, y, block_list, speed, direction):

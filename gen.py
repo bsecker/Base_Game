@@ -13,6 +13,7 @@ class LevelManager:
 		self.background = self.set_background(constants.LIGHTBLUE)
 
 	def generate_world(self):
+		objs = pygame.sprite.Group()
 
 		# add sea
 		sea = entities.Sea()
@@ -108,6 +109,10 @@ class LevelManager:
 	def block_catapult(self):
 		self.current_block = entities.Catapult
 		self.buildcost = 20
+
+	def block_cannon(self):
+		self.current_block = entities.Cannon
+		self.buildcost = 25
 
 	def draw_text(self, surface, font):
 		label = font.render("Money: {0}".format(str(self.money)), 0, constants.TEXT_COLOUR, constants.BG_COLOUR)
