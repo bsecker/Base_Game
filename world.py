@@ -42,12 +42,16 @@ class World:
         state()
 
         self.levelmanager.update()
+        self.check_winloss()
+
+        # add money over time
+        self.levelmanager.money += 0.01
 
         for _object in self.levelmanager.level_objs.sprites():
             _object.update()
 
             if _object.alive == False:
-                self.levelmanager.level_objs.remove(_object)
+                _object.kill()
 
             if _object.entity_id == 'projectile':
                 # do p3rojectile collisions
@@ -56,19 +60,25 @@ class World:
 
                     # collision with sea
                     if collision.entity_id == 'sea':
-                        self.levelmanager.level_objs.remove(_object)
-
-                    # collision with wood
+                        _object.kill()
+ 
+                    # collision with wood, catapults, cannons, etc
                     if collision.entity_id == 'wood' or collision.entity_id == 'rewood' or collision.entity_id == 'catapult' or collision.entity_id == 'cannon':
                         collision.health +=- 1
-                        self.levelmanager.level_objs.remove(_object)
+                        _object.kill()
 
+                        # kill if less than zero
                         if collision.health <= 0:
                             collision.alive = False
-                            self.levelmanager.money += collision.cost
 
-        elapsed_milliseconds = self.clock.get_time()
+                            # give money if enemy block
+                            if collision.owner == 'enemy':
+                                self.levelmanager.money += collision.cost
+
+                                
+        
         #Print the fps that the game is running at.
+        elapsed_milliseconds = self.clock.get_time()
         if self.print_frames:
             self.fps_timer += elapsed_milliseconds
             if self.fps_timer > self.print_fps_frequency:
@@ -105,6 +115,12 @@ class World:
         self.levelmanager.draw_text(surface, self.text_font)
 
         pygame.display.update()
+
+    def check_winloss(self):
+        if len(self.levelmanager.player_objs) == 0:
+            print 'player loses'
+        if len(self.levelmanager.enemy_objs) == 0:
+            print 'player wins'
 
     def state_build(self):
         pass

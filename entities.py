@@ -35,6 +35,7 @@ class Block(BaseEntity):
         self.health = 1
         self.alive = True
         self.cost = 1
+        self.owner = 'player'
 
     def update(self):
         self.update_gravity()
@@ -80,13 +81,14 @@ class ProjectileLauncher(BaseEntity):
         self.block_list = blocklist
         self.cost = 0
         self.health = 3
+        self.owner = 'player'
 
         self.can_fire = False
-        self.reload_max = 50
+        self.reload_max = 100
         self.reload_time = 0
 
         self.fire_angle = -45
-        self.fire_angle_varation = 15
+        self.fire_angle_varation = 25
         self.fire_speed = 10
 
     def update(self):
@@ -111,17 +113,18 @@ class CatapultEnemy(Catapult):
     def __init__(self, x, y, block_list, spritefile = 'spr_catapult_left'):
         ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
         self.entity_id = 'catapult'
-        self.fire_angle = -135
-        self.fire_angle_varation = 15
+        self.fire_angle = 225
+        self.fire_angle_varation = 25
         self.fire_speed = 10
 
 class Cannon(Catapult):
     def __init__(self, x, y, block_list, spritefile = 'spr_cannon'):
         ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
         self.entity_id = 'cannon'
+        self.reload_max = 50
         self.fire_angle = -10
         self.fire_angle_varation = 5
-        self.fire_speed = 12
+        self.fire_speed = 14
         self.cost = 30
 
 class Projectile(BaseEntity):
@@ -155,4 +158,3 @@ class Projectile(BaseEntity):
         # update gravity
         if self.y_vel <= self.max_gravity:
             self.y_vel += self.gravity_accel
-
