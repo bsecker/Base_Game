@@ -117,10 +117,14 @@ class World:
         pygame.display.update()
 
     def check_winloss(self):
+        """check if the amount of blocks on each side is zero.
+        player wins when the opposite side is completely annihilated"""
         if len(self.levelmanager.player_objs) == 0:
             print 'player loses'
+            return True
         if len(self.levelmanager.enemy_objs) == 0:
             print 'player wins'
+            return False
 
     def state_build(self):
         pass

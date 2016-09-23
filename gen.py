@@ -8,12 +8,12 @@ class LevelManager:
 	def __init__(self):
 		self.level_objs, self.player_objs, self.enemy_objs = self.generate_world()
 		self.block_state = 'block_wood'
-		self.money = 1150
+		self.money = 100
 
 		self.background = self.set_background(constants.LIGHTBLUE)
 
 		#generate enemy ship
-		self.generate_enemy_ship(constants.SCREEN_WIDTH/4*3, constants.SCREEN_HEIGHT - constants.SEA_HEIGHT - constants.BLOCK_SIZE, 2, 2, 10)
+		self.generate_enemy_ship(constants.SCREEN_WIDTH/4*3-(5*constants.BLOCK_SIZE), constants.SCREEN_HEIGHT - constants.SEA_HEIGHT - constants.BLOCK_SIZE, 2, 2, 15)
 
 	def generate_world(self):
 		objs = pygame.sprite.Group()
@@ -71,7 +71,7 @@ class LevelManager:
 				if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
 					return
 
-				if block == (entities.Catapult or entities.Cannon):
+				if block == entities.Catapult or block == entities.Cannon:
 					# can only build blocks above existing
 					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
 						# can't build blocks on catapults or cannons
@@ -98,11 +98,14 @@ class LevelManager:
 				
 	def delete_block(self, pos):
 		"""delete block at position. doesn't delete water"""
-		for _i in self.level_objs:
-			if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
-				if _i.entity_id != ('sea' and 'projectile'):
-					_i.kill()
-					self.money += int(_i.cost/2)
+
+		#only delete blocks left of limit
+		if pos[0] <= constants.BUILD_CONSTRAINT:
+			for _i in self.level_objs:
+				if _i.rect.collidepoint(pos[0]+1, pos[1]+1):
+					if _i.entity_id != 'sea' and _i.entity_id != 'projectile':
+						_i.kill()
+						self.money += _i.cost/2
 
 	def block_wood(self):
 		self.current_block = entities.Wood
