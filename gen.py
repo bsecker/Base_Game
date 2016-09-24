@@ -8,7 +8,7 @@ class LevelManager:
 	def __init__(self):
 		self.level_objs, self.player_objs, self.enemy_objs = self.generate_world()
 		self.block_state = 'block_wood'
-		self.money = 100
+		self.money = 10000
 
 		self.background = self.set_background(constants.LIGHTBLUE)
 
@@ -120,7 +120,7 @@ class LevelManager:
 		self.current_block = entities.Cannon
 
 	def draw_text(self, surface, font):
-		label = font.render("Money: {0}".format(str(int(self.money))), 0, constants.TEXT_COLOUR, constants.BG_COLOUR)
+		label = font.render("Money: {0}".format(str(self.money)), 0, constants.TEXT_COLOUR, constants.BG_COLOUR)
 		text_rect = label.get_rect()
 		text_rect.topleft = (10,10)
 

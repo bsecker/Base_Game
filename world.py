@@ -17,7 +17,7 @@ class World:
 
         self.clock = pygame.time.Clock()
         self.game_running = True
-        self.print_frames = 0
+        self.print_frames = 1
         self.fps_timer = 0.0
         self.print_fps_frequency = 1000
 
@@ -54,7 +54,7 @@ class World:
                 _object.kill()
 
             if _object.entity_id == 'projectile':
-                # do p3rojectile collisions
+                # do projectile collisions
                 cols = pygame.sprite.spritecollide(_object, self.levelmanager.level_objs, 0)
                 for collision in cols:
 

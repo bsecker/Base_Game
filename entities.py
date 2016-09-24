@@ -2,6 +2,8 @@ import pygame
 import constants
 import math
 from random import randint
+from spritesheet_functions import SpriteSheet
+
 """
 
 TO DO:
@@ -10,10 +12,11 @@ replace sprites with dirty sprites!
 """
 
 class BaseEntity(pygame.sprite.Sprite):
-    def __init__(self, x, y, width = None, height = None, colour = None, spritefile = None): #better way of writing this?
-        """for blocky style entities"""
+    def __init__(self, x, y, width = None, height = None, colour = None, spritefile = None): 
+        """TO DO: REPLACE WITH BETTER SYSTEM WITH SUPPORT FOR ANIMATIONS"""
         pygame.sprite.Sprite.__init__(self)
 
+        # load sprite image if image exists, otherwise make surface
         if spritefile:
             self.image = pygame.image.load("resources/{0}.png".format(spritefile)).convert_alpha()
         else:
@@ -29,7 +32,8 @@ class BaseEntity(pygame.sprite.Sprite):
 class Block(BaseEntity):
     def __init__(self, colour, x, y, block_list):
         BaseEntity.__init__(self, x, y, constants.BLOCK_SIZE, constants.BLOCK_SIZE, colour)
-        self.block_list = block_list
+        self.block_list = block_list.copy()
+        self.block_list.remove(self)
         self.y_vel = 0
         self.solid = True
         self.health = 1
@@ -37,13 +41,28 @@ class Block(BaseEntity):
         self.cost = 1
         self.owner = 'player'
 
+        self.max_gravity = 10
+        self.gravity_accel = .3
+
     def update(self):
         self.update_gravity()
 
         self.rect.y += self.y_vel
 
+
+        cols = pygame.sprite.spritecollide(self, self.block_list, 0)
+        for block in cols:
+            # Reset our position based on the top/bottom of the object.
+            if self.y_vel > 0:
+                self.rect.bottom = block.rect.top
+ 
+            # Stop our vertical movement
+            self.y_vel = 0
+
     def update_gravity(self):
-        pass
+        """ Calculate effect of gravity. """
+        if self.y_vel <= self.max_gravity:
+            self.y_vel += self.gravity_accel
 
 class Wood(Block):
     def __init__(self, x, y, block_list):
@@ -79,6 +98,12 @@ class ProjectileLauncher(BaseEntity):
         self.entity_id = None
         self.solid = True
         self.block_list = blocklist
+
+        #collisions list
+        self.block_list_c = self.block_list.copy()
+        self.block_list_c.remove(self)
+        self.y_vel = 0
+
         self.cost = 0
         self.health = 3
         self.owner = 'player'
@@ -91,17 +116,39 @@ class ProjectileLauncher(BaseEntity):
         self.fire_angle_varation = 25
         self.fire_speed = 10
 
+        self.max_gravity = 10
+        self.gravity_accel = .3
+
     def update(self):
+        # Fire on timer
         if self.reload_time >= self.reload_max:
-            #fire
             self.reload_time = 0
             self.fire()
         else:
             self.reload_time += 1
 
+        self.update_gravity()
+
+        self.rect.y += self.y_vel
+
+        #do collisions
+        cols = pygame.sprite.spritecollide(self, self.block_list_c, 0)
+        for block in cols:
+            # Reset our position based on the top/bottom of the object.
+            if self.y_vel > 0:
+                self.rect.bottom = block.rect.top
+ 
+            # Stop our vertical movement
+            self.y_vel = 0
+
     def fire(self):
         proj = Projectile(self.rect.x, self.rect.y-10, self.block_list, self.fire_speed, self.fire_angle+randint(-self.fire_angle_varation,self.fire_angle_varation))
         self.block_list.add(proj)
+
+    def update_gravity(self):
+        """ Calculate effect of gravity. """
+        if self.y_vel <= self.max_gravity:
+            self.y_vel += self.gravity_accel
 
 class Catapult(ProjectileLauncher):
     def __init__(self, x, y, block_list, spritefile = 'spr_catapult'):
