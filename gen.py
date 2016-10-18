@@ -75,7 +75,7 @@ class LevelManager:
 					# can only build blocks above existing
 					if _i.rect.collidepoint(pos[0]+1, pos[1]+constants.BLOCK_SIZE+1):
 						# can't build blocks on catapults or cannons
-						if _i.entity_id != ('catapult' or 'cannon'):
+						if _i.entity_id != 'catapult' and _i.entity_id != 'cannon':
 							can_build = 1 #down
 				
 				else:

@@ -36,7 +36,7 @@ class Block(BaseEntity):
         self.block_list.remove(self)
         self.y_vel = 0
         self.solid = True
-        self.health = 1
+        self.health = 2
         self.alive = True
         self.cost = 1
         self.owner = 'player'
@@ -137,6 +137,9 @@ class ProjectileLauncher(BaseEntity):
             # Reset our position based on the top/bottom of the object.
             if self.y_vel > 0:
                 self.rect.bottom = block.rect.top
+
+            if block.entity_id == 'sea':
+                self.alive = False
  
             # Stop our vertical movement
             self.y_vel = 0
