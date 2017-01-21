@@ -8,7 +8,7 @@ from spritesheet_functions import SpriteSheet
 
 TO DO:
 replace sprites with dirty sprites!
-
+fix the  horrible mess that is inheritance
 """
 
 class BaseEntity(pygame.sprite.Sprite):
@@ -28,6 +28,7 @@ class BaseEntity(pygame.sprite.Sprite):
         
     def update(self):
         pass
+
 
 class Block(BaseEntity):
     def __init__(self, colour, x, y, block_list):

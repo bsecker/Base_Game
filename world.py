@@ -21,6 +21,11 @@ class World:
         self.fps_timer = 0.0
         self.print_fps_frequency = 1000
 
+        # enemy thinking event (think every half a second)
+        self.THINKEVENT = pygame.USEREVENT + 2
+        t = 500
+        pygame.time.set_timer(self.THINKEVENT, t)
+
         self.text_font = pygame.font.SysFont("monospace", 20)
 
     def go(self):
@@ -108,11 +113,21 @@ class World:
                 if event.key == pygame.K_4:
                     self.levelmanager.block_state = 'block_cannon'
 
+            if event.type == self.THINKEVENT:
+                self.levelmanager.enemy.think()
+
     def draw(self, surface):
         surface.blit(self.levelmanager.background, (0,0))
 
         self.rects = self.levelmanager.level_objs.draw(surface)
+        self.levelmanager.ui_objs.draw(surface)
+
         self.levelmanager.draw_text(surface, self.text_font)
+
+        # put border around selected UI button
+        for _i in self.levelmanager.ui_objs:
+            if _i.entity_id == self.levelmanager.block_state:
+                pygame.draw.rect(surface, constants.YELLOW, _i.rect, 1)
 
         pygame.display.update()
 
