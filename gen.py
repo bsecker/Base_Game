@@ -61,8 +61,6 @@ class LevelManager:
         state = getattr(self, self.block_state)
         state()
 
-        self.enemy.think()
-
         self.get_mouse()
 
 
@@ -193,30 +191,52 @@ class LevelManager:
 class Enemy:
     def __init__(self, level):
         self.level = level
-        self.create_ship()
         self.money = 10
-        self.starttime = time.time()
-        self.a = 0
 
+        self.xmin = constants.SCREEN_WIDTH / 4 * 3 - (8 * constants.BLOCK_SIZE)# minimum x position of boat
+        self.xmax = self.xmin + (20*constants.BLOCK_SIZE) # max x position
 
-
+        self.create_ship()
 
     def create_ship(self):
-        start_x = constants.SCREEN_WIDTH / 4 * 3 - (8 * constants.BLOCK_SIZE)
         start_y = constants.SCREEN_HEIGHT - constants.SEA_HEIGHT - constants.BLOCK_SIZE
         length  = 20
 
         # create lowermost level
         for i in range(length):
-            self._create_enemy_block( entities.Wood ,start_x + (i * constants.BLOCK_SIZE), start_y)
+            self._create_enemy_block( entities.Wood ,self.xmin + (i * constants.BLOCK_SIZE), start_y)
 
 
     def think(self):
         """create blocks and catapults etc. Handle logic and AI here. Called every 0.5s"""
-        self.a += 1
-        print self.a
+        #   if random.randint(0, 1):
 
+        # generate a random position on the boat (using gaussian distribution, weighted towards back end)
+        pos = 0
+        while not (self.xmin < pos < self.xmax):
+            pos = roundTo(random.gauss(self.xmax, 200), constants.BLOCK_SIZE)
 
+        # choose what to make (50% wood, 20% hardwood, 20% catapult, 10% cannon)
+        choice = random.randint(0, 10)
+        if choice < 5:
+            block = entities.Wood
+        elif choice < 7:
+            block = entities.ReinforcedWood
+        elif choice < 9:
+            block = entities.CatapultEnemy
+        else:
+            block = entities.Wood #would be cannon here
+
+        # check if there is a cannon or catapult at same pos
+
+        for _object in self.level.enemy_objs:
+            if _object.rect.x == pos:
+                for _y in range(0, constants.SCREEN_HEIGHT, constants.BLOCK_SIZE):
+                    if _object.entity_id == 'catapult':
+                        print 'catapult at', pos, _y
+                        return
+
+        self._create_enemy_block(block, pos, 0)
 
     # Private Functions
 
@@ -226,3 +246,9 @@ class Enemy:
         self.level.level_objs.add(block)
         self.level.enemy_objs.add(block)
 
+
+
+# Round to number
+def roundTo(x, base=10):
+    """Round x to the closest base (ie 7.689 [base 10] becomes 10)"""
+    return int(base * round(float(x) / base))

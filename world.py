@@ -18,13 +18,15 @@ class World:
         self.clock = pygame.time.Clock()
         self.game_running = True
         self.print_frames = 1
-        self.fps_timer = 0.0
-        self.print_fps_frequency = 1000
+        self.print_fps_frequency = 2000
 
         # enemy thinking event (think every half a second)
         self.THINKEVENT = pygame.USEREVENT + 2
-        t = 500
-        pygame.time.set_timer(self.THINKEVENT, t)
+        pygame.time.set_timer(self.THINKEVENT, 1000)
+
+        # fps printing event
+        self.FPSEVENT = pygame.USEREVENT + 3
+        pygame.time.set_timer(self.FPSEVENT, self.print_fps_frequency)
 
         self.text_font = pygame.font.SysFont("monospace", 20)
 
@@ -80,15 +82,7 @@ class World:
                             if collision.owner == 'enemy':
                                 self.levelmanager.money += collision.cost
 
-                                
-        
-        #Print the fps that the game is running at.
-        elapsed_milliseconds = self.clock.get_time()
-        if self.print_frames:
-            self.fps_timer += elapsed_milliseconds
-            if self.fps_timer > self.print_fps_frequency:
-                print "FPS: ", self.clock.get_fps()
-                self.fps_timer = 0.0
+
 
     def event_loop(self):
         """main event loop"""
@@ -115,6 +109,9 @@ class World:
 
             if event.type == self.THINKEVENT:
                 self.levelmanager.enemy.think()
+
+            if event.type == self.FPSEVENT:
+                print "FPS: ", self.clock.get_fps()
 
     def draw(self, surface):
         surface.blit(self.levelmanager.background, (0,0))
