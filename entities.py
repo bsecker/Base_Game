@@ -172,9 +172,19 @@ class Cannon(Catapult):
     def __init__(self, x, y, block_list, spritefile = 'spr_cannon'):
         ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
         self.entity_id = 'cannon'
-        self.reload_max = 50
+        self.reload_max = 70
         self.fire_angle = -10
-        self.fire_angle_varation = 5
+        self.fire_angle_varation = 7
+        self.fire_speed = 14
+        self.cost = 30
+
+class CannonEnemy(Catapult):
+    def __init__(self, x, y, block_list, spritefile = 'spr_cannon_left'):
+        ProjectileLauncher.__init__(self, x, y, block_list, spritefile)
+        self.entity_id = 'cannon'
+        self.reload_max = 50
+        self.fire_angle = 190 # TODO: Change these
+        self.fire_angle_varation = 10
         self.fire_speed = 14
         self.cost = 30
 

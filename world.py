@@ -3,6 +3,9 @@ import gen
 import constants
 import pygame
 
+"""to do:
+replace looping stuff with events to be easier on CPU"""
+
 class World:
     def __init__(self):
         self.game_state = "state_build"

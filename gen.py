@@ -191,7 +191,7 @@ class LevelManager:
 class Enemy:
     def __init__(self, level):
         self.level = level
-        self.money = 10
+        self.diff = 0
 
         self.xmin = constants.SCREEN_WIDTH / 4 * 3 - (8 * constants.BLOCK_SIZE)# minimum x position of boat
         self.xmax = self.xmin + (20*constants.BLOCK_SIZE) # max x position
@@ -209,31 +209,37 @@ class Enemy:
 
     def think(self):
         """create blocks and catapults etc. Handle logic and AI here. Called every 0.5s"""
-        #   if random.randint(0, 1):
+
+        self.diff += 1 ## add 1 to difficulty
 
         # generate a random position on the boat (using gaussian distribution, weighted towards back end)
         pos = 0
         while not (self.xmin < pos < self.xmax):
             pos = roundTo(random.gauss(self.xmax, 200), constants.BLOCK_SIZE)
 
-        # choose what to make (50% wood, 20% hardwood, 20% catapult, 10% cannon)
-        choice = random.randint(0, 10)
-        if choice < 5:
+        # choose what to make (60% wood, 25% hardwood, 10% catapult, 5% cannon)
+        choice = random.randint(0, 100)
+        if choice < 60:
             block = entities.Wood
-        elif choice < 7:
+        elif choice < 85:
             block = entities.ReinforcedWood
-        elif choice < 9:
-            block = entities.CatapultEnemy
+        elif choice < 95:
+            # only create catapults after a certain point
+            if self.diff > 10:
+                block = entities.CatapultEnemy
+            else:
+                block = entities.Wood
         else:
-            block = entities.Wood #would be cannon here
+            if self.diff > 40:
+                block = entities.CannonEnemy #would be cannon here
+            else:
+                block = entities.ReinforcedWood
 
         # check if there is a cannon or catapult at same pos
-
         for _object in self.level.enemy_objs:
             if _object.rect.x == pos:
                 for _y in range(0, constants.SCREEN_HEIGHT, constants.BLOCK_SIZE):
                     if _object.entity_id == 'catapult':
-                        print 'catapult at', pos, _y
                         return
 
         self._create_enemy_block(block, pos, 0)
